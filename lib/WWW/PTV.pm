@@ -224,6 +224,7 @@ sub get_stop_by_id {
 		else {
 			$stop{$var} = $val->as_text
 		}
+		print "$var = ",$val->as_text,"\n";
 	}
 
 	%{$stop{routes}} = map { 

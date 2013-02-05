@@ -7,9 +7,11 @@ use HTML::TreeBuilder;
 use Scalar::Util qw(weaken);
 use Carp qw(croak);
 
-our $VERSION = '0.01';
-our @ATTR = qw(	id direction_out direction_in direction_out_link direction_in_link
-		description_out description_in operator operator_ph );
+our $VERSION	= '0.01';
+our @ATTR	= qw(	id direction_out direction_in direction_out_link direction_in_link
+			description_out description_in operator operator_ph );
+
+our %DAY	= ( weekday => 'T0', sat => 'T2', sun => 'UJ' );
 
 foreach my $attr ( @ATTR ) { 
         {   
@@ -34,13 +36,25 @@ sub new {
         return $self
 }
 
-sub get_outbound_tt { $_[0]->__get_tt( 'out' ) } 
+sub get_inbound_tt { 
+	my $self	= shift;
+	$self->__get_tt( 'in', @_ ) 
+} 
+
+sub get_outbound_tt { 
+	my $self	= shift;
+	$self->__get_tt( 'out', @_ ) 
+} 
 
 sub __get_tt {
-        my( $self, $direction ) = @_; 
+        my( $self, $direction, $schedule ) = @_; 
 	return unless $direction =~ /(in|out)/;
+	$schedule ||= 'weekday';
+	return unless $schedule =~ /weekday|sat|sun/;
 
-        my $tt = $self->__request( ( $direction eq 'out' ? $self->{direction_out_link} : $self->{direction_in} ) );
+        print "$self->{direction_out_link}&itdLPxx_selWDType=$DAY{ $schedule }\n\n";
+        my $tt = $self->__request( ( $direction eq 'out' ? $self->{direction_out_link} : $self->{direction_in} ) 
+					. "&itdLPxx_selWDType=$DAY{ $schedule }" );
 	my $t = HTML::TreeBuilder->new_from_content( $tt );
 
 	for ( $t->look_down( _tag => 'meta' ) ) {
@@ -52,6 +66,12 @@ sub __get_tt {
 			last
 		}
 	}
+	
+	my $dates	= $t->look_down( _tag => 'select', name => 'itdLPxx_selWDType' );
+	my %HAVE_DAY	= map { $_->attr( 'value' ) => 1 } $dates->look_down( _tag => 'option' );
+	print "TTTTT: $HAVE_DAY{$DAY{ $schedule } }\n\n";
+	$HAVE_DAY{$DAY{ $schedule } } or return;
+	#return unless $DAY{ $HAVE_DAY{ $schedule } };
 
 	$tt = $t->look_down( _tag => 'img', title => 'Expand' );
 	#( $tt = $t->look_down( _tag => 'img', title => 'Expand' )->attr( 'onclick' ) ) =~ s/^.*\('//;
@@ -85,7 +105,21 @@ sub __get_tt {
 
 		push @stop_times, [ @s ]
 	}
-#	return @stop_times;
+
+	my @res;
+	my $c = 0;
+
+	for ( @stop_links ) {
+		#print "id = $stop_links[$c]\nname = $name\n";
+		my $res = { 	id	=> $stop_links[ $c ],
+				name	=> $stop_names[ $c ],
+				times	=> $stop_times[ $c ] };
+		push @res, $res;
+		$c++
+	}
+
+	return @res;
+	return @stop_times;
 	return @stop_links
 }
 
