@@ -7,10 +7,10 @@ use Carp qw(croak);
 
 our @ATTR = qw(		address bicycles_cage bicycles_lockers bicycles_racks car_parking 
 			escalator feedback_phone fn_org hearing_loop id latitude lifts lighting 
-			locality lockers longitude lost_property_phone metcard_ticket_machines 
-			municipiality municipiality_id myki_checks myki_machines postcode 
-			public_phone public_toilet routes seating stairs station_phone 
-			tactile_paths taxi_rank transport_type vline_bookings waiting_area_indoor 
+			locality lockers longitude lost_property_phone municipiality 
+			municipiality_id myki_checks myki_machines postcode public_phone 
+			public_toilet routes seating stairs station_phone tactile_paths 
+			taxi_rank transport_type vline_bookings waiting_area_indoor 
 			waiting_area_sheltered wheelchair_accessible );
 
 foreach my $attr ( @ATTR ) {

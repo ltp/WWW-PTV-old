@@ -69,10 +69,7 @@ sub __get_tt {
 	
 	my $dates	= $t->look_down( _tag => 'select', name => 'itdLPxx_selWDType' );
 	my %HAVE_DAY	= map { $_->attr( 'value' ) => 1 } $dates->look_down( _tag => 'option' );
-	print "TTTTT: $HAVE_DAY{$DAY{ $schedule } }\n\n";
-	$HAVE_DAY{$DAY{ $schedule } } or return;
-	#return unless $DAY{ $HAVE_DAY{ $schedule } };
-
+	exists $HAVE_DAY{$DAY{ $schedule } } or return;
 	$tt = $t->look_down( _tag => 'img', title => 'Expand' );
 	#( $tt = $t->look_down( _tag => 'img', title => 'Expand' )->attr( 'onclick' ) ) =~ s/^.*\('//;
 
